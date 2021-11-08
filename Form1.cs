@@ -20,6 +20,7 @@ namespace app2
         private List<Coordonate> puncte;
         private Graphics g;
         private Bitmap bitmap;
+        private Double cost;
         public Form1()
         {
             InitializeComponent();
@@ -33,6 +34,7 @@ namespace app2
             distantaPunctCentroid = new List<double>();
             centroizi = new List<Centroid>();
             puncte = new List<Coordonate>();
+            cost = 0;
 
             //pentru fiecare centroid generam coordonate:
             for (int i = 0; i < nrCentroizi; i++)
@@ -67,8 +69,7 @@ namespace app2
             DesenareInitiala();
             //desenam punctele si centroizii:
             Desenare();
-            //Similaritate(centroizi, puncte);
-            Similaritate();
+
         }
 
         private void DesenareInitiala()
@@ -88,7 +89,7 @@ namespace app2
             foreach (var centroid in centroizi)
             {
                 int radius = 3;
-                g.FillEllipse(Brushes.Red, centroid.coordonateCentroid.x - radius, centroid.coordonateCentroid.y - radius, 2 * radius, 2 * radius);
+                g.FillEllipse(Brushes.Red, centroid.coordonateCentroid.x, centroid.coordonateCentroid.y, 2 * radius, 2 * radius);
             }
 
             foreach (var punct in puncte)
@@ -122,33 +123,50 @@ namespace app2
         }
         private void RedesenareCentroizi()
         {
-            for (int i = 0; i < nrCentroizi; i++)
+            foreach (var centroid in centroizi)
             {
                 int sumaX = 0;
                 int sumaY = 0;
 
-                if (!centroizi[i].punctSimilar.Count.Equals(0))
+                if (!centroid.punctSimilar.Count.Equals(0))
                 {
-                    foreach (var punctApropiat in centroizi[i].punctSimilar)
+                    foreach (var punctApropiat in centroid.punctSimilar)
                     {
                         sumaX += punctApropiat.x;
                         sumaY += punctApropiat.y;
                     }
-                    centroizi[i].coordonateCentroid.x = sumaX / centroizi[i].punctSimilar.Count;
-                    centroizi[i].coordonateCentroid.y = sumaY / centroizi[i].punctSimilar.Count;
+                    centroid.coordonateCentroid.x = sumaX / centroid.punctSimilar.Count;
+                    centroid.coordonateCentroid.y = sumaY / centroid.punctSimilar.Count;
                 }
             }
-            for (int i = 0; i < nrCentroizi; i++)
+            foreach (var centroid in centroizi)
             {
                 int radius = 4;
-                g.FillEllipse(Brushes.Aquamarine, centroizi[i].coordonateCentroid.x - radius, centroizi[i].coordonateCentroid.y, 2 * radius, 2 * radius);
+                g.FillEllipse(Brushes.Aquamarine, centroid.coordonateCentroid.x - radius, centroid.coordonateCentroid.y, 2 * radius, 2 * radius);
             }
+
+            CalculeazaCost();
+        }
+
+        private double CalculeazaCost()
+        {
+            double costNou = 0;
+            for (int i = 0; i < distantaPunctCentroid.Count; i++)
+            {
+                costNou += distantaPunctCentroid[i];
+            }
+            return costNou;
         }
 
         private void testareBtn_Click(object sender, EventArgs e)
         {
+            Similaritate();
+            while (CalculeazaCost() != cost) {
+                cost = CalculeazaCost();
+            }
             RedesenareCentroizi();
             Refresh();
+
         }
 
     }
