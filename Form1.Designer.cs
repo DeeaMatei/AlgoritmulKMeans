@@ -62,6 +62,7 @@ namespace app2
             this.testareBtn.TabIndex = 2;
             this.testareBtn.Text = "Testare";
             this.testareBtn.UseVisualStyleBackColor = true;
+            this.testareBtn.Click += new System.EventHandler(this.testareBtn_Click);
             // 
             // Form1
             // 

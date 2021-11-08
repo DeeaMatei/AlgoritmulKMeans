@@ -13,6 +13,13 @@ namespace app2
 {
     public partial class Form1 : Form
     {
+        private Random random;
+        private int nrCentroizi;
+        private List<Double> distantaPunctCentroid;
+        private List<Centroid> centroizi;
+        private List<Coordonate> puncte;
+        private Graphics g;
+        private Bitmap bitmap;
         public Form1()
         {
             InitializeComponent();
@@ -21,12 +28,12 @@ namespace app2
         private void antrenareBtn_Click(object sender, EventArgs e)
         {
             //se alege un numar random de centroizi
-            Random random = new Random();
-            int nrCentroizi = random.Next(2, 10);
+            random = new Random();
+            nrCentroizi = random.Next(2, 10);
+            distantaPunctCentroid = new List<double>();
+            centroizi = new List<Centroid>();
+            puncte = new List<Coordonate>();
 
-            List<Double> distantaPunctCentroid = new List<double>();
-            List<Centroid> centroizi = new List<Centroid>();
-            List<Coordonate> puncte = new List<Coordonate>();
             //pentru fiecare centroid generam coordonate:
             for (int i = 0; i < nrCentroizi; i++)
             {
@@ -53,22 +60,18 @@ namespace app2
             }
 
             //creem un bitmap unde urmeaza sa desenam sistemul de coordonate, centroizii si punctele:
-            Bitmap bitmap = new Bitmap(600, 600);
-            Graphics g = Graphics.FromImage(bitmap);
+            bitmap = new Bitmap(600, 600);
+            g = Graphics.FromImage(bitmap);
             g.Clear(Color.White);
             //desenam sistemul de coordonate:
-            DesenareInitiala(bitmap, g);
+            DesenareInitiala();
             //desenam punctele si centroizii:
-            Desenare(centroizi, puncte, bitmap, g);
+            Desenare();
             //Similaritate(centroizi, puncte);
-            Similaritate(centroizi, puncte, nrCentroizi, distantaPunctCentroid);
-            //Redesenare centroid in centrul de greutate:
-            RedesenareCentroizi(centroizi, nrCentroizi, g);
+            Similaritate();
         }
 
-
-
-        private void DesenareInitiala(Bitmap bitmap, Graphics g)
+        private void DesenareInitiala()
         {
             Point p1 = new Point(0, 300);
             Point p2 = new Point(600, 300);
@@ -80,7 +83,7 @@ namespace app2
             g.DrawLine(pen, p3, p4);
         }
 
-        private void Desenare(List<Centroid> centroizi, List<Coordonate> puncte, Bitmap bitmap, Graphics g)
+        private void Desenare()
         {
             foreach (var centroid in centroizi)
             {
@@ -97,7 +100,7 @@ namespace app2
             Refresh();
         }
 
-        private void Similaritate(List<Centroid> centroizi, List<Coordonate> puncte, int nrCentroizi, List<Double> distantaPunctCentroid)
+        private void Similaritate()
         {
             double distanta;
             foreach (var punct in puncte)
@@ -117,25 +120,36 @@ namespace app2
                 distantaPunctCentroid.Add(minim);
             }
         }
-        private void RedesenareCentroizi(List<Centroid> centroizi, int nrCentroizi, Graphics g)
+        private void RedesenareCentroizi()
         {
             for (int i = 0; i < nrCentroizi; i++)
             {
                 int sumaX = 0;
                 int sumaY = 0;
-                foreach (var punctApropiat in centroizi[i].punctSimilar)
+
+                if (!centroizi[i].punctSimilar.Count.Equals(0))
                 {
-                    sumaX += punctApropiat.x;
-                    sumaY += punctApropiat.y;
+                    foreach (var punctApropiat in centroizi[i].punctSimilar)
+                    {
+                        sumaX += punctApropiat.x;
+                        sumaY += punctApropiat.y;
+                    }
+                    centroizi[i].coordonateCentroid.x = sumaX / centroizi[i].punctSimilar.Count;
+                    centroizi[i].coordonateCentroid.y = sumaY / centroizi[i].punctSimilar.Count;
                 }
-                centroizi[i].coordonateCentroid.x = sumaX;
-                centroizi[i].coordonateCentroid.y = sumaY;
             }
             for (int i = 0; i < nrCentroizi; i++)
             {
-                int radius = 3;
-                g.FillEllipse(Brushes.Red, centroizi[i].coordonateCentroid.x - radius, centroizi[i].coordonateCentroid.y - radius, 2 * radius, 2 * radius);
+                int radius = 4;
+                g.FillEllipse(Brushes.Aquamarine, centroizi[i].coordonateCentroid.x - radius, centroizi[i].coordonateCentroid.y, 2 * radius, 2 * radius);
             }
         }
+
+        private void testareBtn_Click(object sender, EventArgs e)
+        {
+            RedesenareCentroizi();
+            Refresh();
+        }
+
     }
 }
